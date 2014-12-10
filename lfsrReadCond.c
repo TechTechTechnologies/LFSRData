@@ -34,7 +34,7 @@ int main()
     fread(&seqNum, sizeof(unsigned short), 1, inFile);
     condTable[i] = calloc(seqNum*2+1, sizeof(unsigned short));
     condTable[i][0] = seqNum;
-    fread(condTable[i], sizeof(unsigned short), seqNum*2, inFile);
+    fread(condTable[i]+1, sizeof(unsigned short), seqNum*2, inFile);
   }
 
   fclose(inFile);

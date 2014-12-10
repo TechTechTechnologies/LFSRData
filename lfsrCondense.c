@@ -40,12 +40,22 @@ int main()
 
   for(i = 0; i < tapNum; ++i)
   {
-    fread(lenTable[i], sizeof(unsigned short), i, inFile);
+    fread(lenTable[i], sizeof(unsigned short), tapNum, inFile);
   }
 
   fclose(inFile);
 
   //compute sparse freq table
+
+  for(i = 0; i < 4; ++i)
+  {
+    for(j = 0; j < 4; ++j)
+    {
+      printf("%4i\t", lenTable[i][j]);
+    }
+    printf("\n");
+  }
+
 
   for(i = 0; i < tapNum; ++i)
   {
@@ -70,6 +80,7 @@ int main()
   for(i = 0; i < tapNum; ++i)
   {
     printf("\r%3.1f%%", 100*((float)i)/tapNum);
+//printf("%x\t", i);    
     
     seqNum = 0;
     for(j = 1; j < tapNum; ++j)
@@ -88,9 +99,11 @@ int main()
         condTable[i][1+2*seqNum] = j;
         condTable[i][2+2*seqNum] = freqTable[i][j];
         ++seqNum;
+//printf("%4i, %2f\t", condTable[i][2*j+1], 100*condTable[i][2*j+2]/(float)freqTable[i][0]);
+
       }
     }
-
+//printf("\n");
     fwrite(condTable[i], sizeof(unsigned short), condTable[i][0]*2+1, outFile);
 
   }

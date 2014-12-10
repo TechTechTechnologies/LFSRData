@@ -30,7 +30,7 @@ int main()
 
   for(i = 0; i < tapNum; ++i)
   {
-    fread(lenTable[i], sizeof(unsigned short), i, inFile);
+    fread(lenTable[i], sizeof(unsigned short), tapNum, inFile);
   }
 
   fclose(inFile);

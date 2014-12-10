@@ -4,7 +4,8 @@
 //Computes and writes LFSR sequence length table to a binary file as unsigned short
 
 int* found;
-const int tapNum = 4096;
+#define tapNum 4096
+//const int tapNum = 4096;
 
 int getLength(int start, int taps, int length)
 {
@@ -35,15 +36,16 @@ int getLength(int start, int taps, int length)
     }
     lfsr <<=1;
     lfsr |= next;
+    lfsr &= length;
     ++result;    
 
-    if(found[lfsr&length] == 0) //Look for previous instances of the current value
+    if(found[lfsr] == 0) //Look for previous instances of the current value
     {
-      found[lfsr&length] = result;
+      found[lfsr] = result;
     }
     else                       //Stop and compute result if there was one
     {
-      result -= found[lfsr&length];
+      result -= found[lfsr];
       done = 1;
     }
 
@@ -57,9 +59,9 @@ int getLength(int start, int taps, int length)
 int main()
 {
 
-  int i, j, k;
+  unsigned short i, j, k;
   int res;
-  int length;
+  unsigned short length;
   int temp;
   int hit;
   int tableIndex;
@@ -80,23 +82,10 @@ int main()
   length = 0;
   for(i = 0; i < tapNum; ++i)
   {
-    printf("\r%3.1f%%", 100*((float)i)/tapNum);
+    printf("\r%3.1f%%\t%4x", 100*((float)i)/tapNum, length);
     hit = 0;
 
-    while((i&length) != i) // Ensure that length masks i, with assumptions that i always increases
-    {
-      length <<=1;
-      length |= 1;
-    }
-/*
-    temp = i;
-    while(i)
-    {
-      i>>=1;
-      length |= i;
-    }
-    i = temp;
-*/
+    length |=i; // Ensure that length masks i, with assumptions that i always increases
 
     for(j = 0; j <= length; ++j)
     {

@@ -5,7 +5,6 @@
 //Computes and writes LFSR sequences to a binary file as unsigned short
 //MSB indicates non-transient component, lower 15 bits give sequence id starting at 1
 
-int* found;
 #define tapNum 4096
 
 void getLength(int start, int taps, int mask, unsigned short* data)
@@ -14,15 +13,15 @@ void getLength(int start, int taps, int mask, unsigned short* data)
   //given starting value, taps config, and masking value: run LFSR and record distinct sequences in an array
 
   int done;
-  int counter;
+
   int next;
   int bits;
   int lfsr;
-  int last;
+
   unsigned short part;
 
 
-  memset(data, 0, tapNum);
+//  memset(data, 0, tapNum);
 
   part = 1;
 
@@ -33,18 +32,6 @@ void getLength(int start, int taps, int mask, unsigned short* data)
     done = 0;
     do
     {
-      last = lfsr;
-      next = 1;
-      bits = lfsr&taps;
-
-      while(bits) //Compute LFSR feedback
-      {
-        next ^= (bits&1);
-        bits>>=1;
-      }
-      lfsr <<=1;
-      lfsr |= next;
-      lfsr &= mask;
 
       if(data[lfsr] == 0)                //Look for previous instances of the current value
       {
@@ -59,12 +46,26 @@ void getLength(int start, int taps, int mask, unsigned short* data)
         done = 1;
       }
 
+      next = 1;
+      bits = lfsr&taps;
+
+      while(bits)         //Compute LFSR feedback
+      {
+        next ^= (bits&1);
+        bits>>=1;
+      }
+
+      lfsr <<=1;          //Shift LFSR
+      lfsr |= next;
+
+      lfsr &= mask;       //Mask LFSR
+
 
     } while(!done);
 
     ++part;
 
-    while(start < mask && found[start++] != 0);
+    while(start < mask && data[start] != 0) ++start;
   }
 
 }
@@ -82,7 +83,6 @@ int main()
 
   FILE* outFile;
 
-  found = malloc(sizeof(int)*tapNum);
 
   unsigned short *seqTable[tapNum];  //seqTable[taps][ic] = length
 

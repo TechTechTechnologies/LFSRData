@@ -30,7 +30,7 @@ void getLength(int start, int taps, int mask, unsigned short* data)
 
     lfsr = start;
     done = 0;
-    do
+    do             //Record the transient and repeating sequence for the current value of start
     {
 
       if(data[lfsr] == 0)                //Look for previous instances of the current value

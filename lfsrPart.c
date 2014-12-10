@@ -4,26 +4,27 @@
 
 //Computes and writes LFSR sequences to a binary file as unsigned short
 //MSB indicates non-transient component, lower 15 bits give sequence id starting at 1
+//Note that this does not generate meaningful information for a taps configuration of 0
 
 #define tapNum 4096
 
-void getLength(int start, int taps, int mask, unsigned short* data)
+void getSequences(int taps, int mask, unsigned short* data)
 {
 
   //given starting value, taps config, and masking value: run LFSR and record distinct sequences in an array
 
   int done;
-
+ 
+  int start;
   int next;
   int bits;
   int lfsr;
 
   unsigned short part;
 
-
-//  memset(data, 0, tapNum);
-
   part = 1;
+
+  start = 0;
 
   while(start <= mask)
   {
@@ -75,7 +76,7 @@ int main()
 
   unsigned short i, j, k;
   int res;
-  unsigned short length;
+  unsigned short mask;
   int temp;
   int hit;
   int tableIndex;
@@ -91,18 +92,22 @@ int main()
     seqTable[i] = calloc(tapNum, sizeof(unsigned short));
   }
 
-  length = 0;
+  //run getSequences on every taps configuration
+
+  mask = 0;
   for(i = 0; i < tapNum; ++i)
   {
     printf("\r%3.1f%%\t", 100*((float)i)/tapNum);
     hit = 0;
 
-    length |=i; // Ensure that length masks i, with assumptions that i always increases
+    mask |=i; // Ensure that length masks i, with assumptions that i always increases
 
-    getLength(0, i, length, seqTable[i]);
+    getSequences(i, mask, seqTable[i]);
 
   }
   printf("\n");
+
+  //print sample for sanity check
 
   for(i = 0; i < 8; ++i)
   {
@@ -113,7 +118,9 @@ int main()
     printf("\n");
   }
 
-  outFile = fopen("tapsTable", "wb");
+  //write sequence table to file seqsTable
+
+  outFile = fopen("seqsTable", "wb");
 
   for(i = 0; i < tapNum; ++i)
   {

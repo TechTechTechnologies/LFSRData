@@ -6,6 +6,11 @@
 //MSB indicates non-transient component, lower 15 bits give sequence id starting at 1
 //Note that this does not generate meaningful information for a taps configuration of 0
 
+//Another note: at present this is not guarunteed to handle transients correctly. For example consider the sequence:
+//1230456[789789...]
+//The first run will mark 0456 as a transient belonging to sequence 1 and 789 as the repeating part of sequence 1,
+//then, the second run will start at 1 and mark 123 as the transient part of sequence 2, then mark 0456 as repeating parts of sequence 1
+
 #define tapNum 4096
 
 void getSequences(int taps, int mask, unsigned short* data)

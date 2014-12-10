@@ -40,9 +40,9 @@ int main()
 
   fclose(inFile);
 
-  for(i = 0; i < 16; ++i)
+  for(i = 0; i < tapNum; ++i)
   {
-    printf("%x, %i\t", i, condTable[i][0]);
+    printf("%4.4o, %i\t", i, condTable[i][0]);
     total = 0;
 
     for(j = 0; j < condTable[i][0]; ++j)

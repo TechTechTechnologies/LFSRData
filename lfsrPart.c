@@ -25,7 +25,7 @@ void getLength(int start, int taps, int mask, unsigned short* data)
 
   part = 1;
 
-  while(start < mask)
+  while(start <= mask)
   {
 
     lfsr = start;
@@ -65,7 +65,7 @@ void getLength(int start, int taps, int mask, unsigned short* data)
 
     ++part;
 
-    while(start < mask && data[start] != 0) ++start;
+    while(start <= mask && data[start] != 0) ++start;
   }
 
 }

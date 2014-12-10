@@ -1,11 +1,14 @@
 #include <stdio.h>
 #include <memory.h>
 
+//Computes and writes LFSR sequence length table to a binary file as unsigned short
+
+int* found;
+const int tapNum = 4096;
+
 int getLength(int start, int taps, int length)
 {
-
-  int* found;
-  
+ 
   int done;
   int counter;
   int next;
@@ -15,8 +18,7 @@ int getLength(int start, int taps, int length)
   int last;
 
   done = 0;
-  found = (int*)malloc(10000*sizeof(int));
-  memset(found, 0, 10000*sizeof(int));
+  memset(found, 0, tapNum*sizeof(int));
   result = 0;
   lfsr = start;
 
@@ -25,7 +27,8 @@ int getLength(int start, int taps, int length)
     last = lfsr;
     next = 1;
     bits = lfsr&taps;
-    while(bits)
+
+    while(bits) //Compute LFSR feedback
     {
       next ^= (bits&1);
       bits>>=1;
@@ -34,11 +37,11 @@ int getLength(int start, int taps, int length)
     lfsr |= next;
     ++result;    
 
-    if(found[lfsr&length] == 0)
+    if(found[lfsr&length] == 0) //Look for previous instances of the current value
     {
       found[lfsr&length] = result;
     }
-    else
+    else                       //Stop and compute result if there was one
     {
       result -= found[lfsr&length];
       done = 1;
@@ -46,8 +49,6 @@ int getLength(int start, int taps, int length)
 
 
   } while(!done);
-
-  free(found);
 
   return result;
 
@@ -66,7 +67,8 @@ int main()
 
   FILE* outFile;
 
-  const int tapNum = 4096;
+  found = malloc(sizeof(int)*tapNum);
+
   unsigned short *lenTable[tapNum];  //lenTable[taps][ic] = length
 
   for(i = 0; i < tapNum; ++i)
@@ -75,12 +77,18 @@ int main()
     memset(lenTable[i], 0, (tapNum)*sizeof(unsigned short));
   }
 
-
+  length = 0;
   for(i = 0; i < tapNum; ++i)
   {
     printf("\r%3.1f%%", 100*((float)i)/tapNum);
     hit = 0;
-    length = 0;
+
+    while((i&length) != i) // Ensure that length masks i, with assumptions that i always increases
+    {
+      length <<=1;
+      length |= 1;
+    }
+/*
     temp = i;
     while(i)
     {
@@ -88,6 +96,7 @@ int main()
       length |= i;
     }
     i = temp;
+*/
 
     for(j = 0; j <= length; ++j)
     {
@@ -96,11 +105,21 @@ int main()
     }
   }
 
+
+  for(i = 0; i < 4; ++i)
+  {
+    for(j = 0; j < 4; ++j)
+    {
+      printf("%4i\t", lenTable[i][j]);
+    }
+    printf("\n");
+  }
+
   outFile = fopen("tapsTable", "wb");
 
   for(i = 0; i < tapNum; ++i)
   {
-    fwrite(lenTable[i], sizeof(unsigned short), i, outFile);
+    fwrite(lenTable[i], sizeof(unsigned short), tapNum, outFile);
   }
 
   fclose(outFile);

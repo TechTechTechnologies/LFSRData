@@ -85,7 +85,7 @@ int main()
   FILE* outFile;
 
 
-  unsigned short *seqTable[tapNum];  //seqTable[taps][ic] = length
+  unsigned short *seqTable[tapNum];  //seqTable[taps][val] = sequence id containing val
 
   for(i = 0; i < tapNum; ++i)
   {

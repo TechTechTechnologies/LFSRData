@@ -27,6 +27,7 @@ unsigned short* getSequencesAtTaps(unsigned short taps, unsigned short mask, uns
   //given starting value, taps config, and masking value: run LFSR and record distinct sequences in an array
 
   int done;
+  int revise;
  
   int start;
   int next;
@@ -35,6 +36,7 @@ unsigned short* getSequencesAtTaps(unsigned short taps, unsigned short mask, uns
 
   unsigned short part;
   unsigned short* data;
+
 
   data = calloc(tapNum, sizeof(unsigned short));
 
@@ -47,6 +49,7 @@ unsigned short* getSequencesAtTaps(unsigned short taps, unsigned short mask, uns
 
     lfsr = start;
     done = 0;
+    revise = 0;
     do             //Record the transient and repeating sequence for the current value of start
     {
 
@@ -56,7 +59,12 @@ unsigned short* getSequencesAtTaps(unsigned short taps, unsigned short mask, uns
       }
       else if((data[lfsr]&0x8000) == 0)  //Check for loop bit
       {
-if((data[lfsr]&0x7FFF) != (part&0x7FFF)) printf("Boner\n"); //warn about mismatched transients
+        if((data[lfsr]&0x7FFF) != (part&0x7FFF))  //On collision, set revise flasg to replacement seqeunce id and break. This probably never happens
+        {
+          printf("Boner\n");
+          revise = (data[lfsr]&0x7FFF);
+          break;
+        }
 
         data[lfsr] |= 0x8000;
       }
@@ -82,7 +90,18 @@ if((data[lfsr]&0x7FFF) != (part&0x7FFF)) printf("Boner\n"); //warn about mismatc
 
     } while(!done);
 
-    ++part;
+    if(revise != 0)
+    {
+      for( i = 0; i < mask; ++i)
+      {
+        if(data[i] == part)
+          data[i] = revise;
+      }
+    }
+    else
+    {
+      ++part;
+    }
 
     while(start <= mask && data[start] != 0) ++start;
   }

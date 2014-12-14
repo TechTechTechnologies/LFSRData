@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <memory.h>
+#include <time.h>
 
 //some functions for computing LFSR data
 
@@ -101,9 +102,14 @@ unsigned short** getAllSequences(unsigned short tapNum)
   int tableIndex;
   int unique;
 
+  clock_t startTime;
+  clock_t endTime;
+
   unsigned short **seqTable;  //seqTable[taps][val] = sequence id containing val
 
   seqTable = calloc(tapNum, sizeof(unsigned short*));
+
+  startTime = clock();
 
   //run getSequences on every taps configuration
 
@@ -119,6 +125,9 @@ unsigned short** getAllSequences(unsigned short tapNum)
 
   }
   printf("\n");
+
+  endTime = clock();
+  printf("Operation completed in %f s\n", (float)(endTime-startTime)/CLOCKS_PER_SEC);
 
   return seqTable;
 

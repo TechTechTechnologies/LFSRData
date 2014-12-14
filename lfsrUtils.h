@@ -26,6 +26,7 @@ unsigned short* getSequencesAtTaps(unsigned short taps, unsigned short mask, uns
 
   //given starting value, taps config, and masking value: run LFSR and record distinct sequences in an array
 
+  unsigned short i;
   int done;
   int revise;
  

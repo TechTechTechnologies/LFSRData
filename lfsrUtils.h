@@ -5,8 +5,143 @@
 #include <stdlib.h>
 #include <memory.h>
 #include <time.h>
+#include <math.h>
 
 //some functions for computing LFSR data
+
+//Complex math stuff
+
+struct Complex
+{
+  float r,i;
+};
+
+struct Complex cMult(struct Complex a, struct Complex b)
+{
+  struct Complex result;
+  result.r = a.r*b.r - a.i*b.i;
+  result.r = a.r*b.i + a.i*b.r;
+  return result;
+}
+
+struct Complex cAdd(struct Complex a, struct Complex b)
+{
+  struct Complex result;
+  result.r = a.r+b.r;
+  result.i = a.i+b.i;
+  return result;
+}
+
+struct Complex iExp(float i)
+{
+  struct Complex result;
+  result.r = cos(i);
+  result.i = sin(i);
+  return result;
+}
+
+//getSeriesAtTaps
+//Computes fourier series amplitude of each sequences
+
+float** getSeriesAtTaps(unsigned short* seqData, unsigned short tapNum)
+{
+
+  int i,j;
+
+  int k,n,N;
+
+  unsigned short seqNum;           //Num of sequences
+  int lenCounter;
+
+  struct Complex accum;
+  struct Complex coeff;
+  float temp;
+
+  float** specTable;    //specTable[sequenceID][n] = {N, c_0, c_1, ..., c_{N-1}}
+                        // specTable[0][0] = number of sequences
+
+  float* seqVals;       //For holding the LFSR feedback sequence values
+
+
+  for(i = 0; i < tapNum; ++i) //Count the number of sequences by finding the largest value in the sequence array
+  {
+    if(seqData[i] > seqNum)
+    {
+      seqNum = seqData[i];
+    }
+  }
+
+  seqNum &= 0x7FFF;
+
+  specTable = calloc(seqNum+1, sizeof(float*));
+
+  specTable[0] = calloc(1, sizeof(float)); //set number of seqeunces
+  specTable[0][0] = seqNum;
+
+  for(i = 1; i <= seqNum; ++i)  
+  {
+    lenCounter = 0;                 //count length of sequences and allocate 
+    for(j = 0; j < tapNum; ++j)
+    {
+      if(seqData[j] == (i|0x8000))
+      {
+        ++lenCounter;
+      }
+    }
+
+    specTable[i] = calloc(lenCounter+1, sizeof(float));
+    specTable[i][0] = lenCounter;
+
+    seqVals = calloc(lenCounter, sizeof(float));
+
+    N = lenCounter;
+    n = 0;
+    for(j = 0; j < tapNum; ++j)     //load lfsr sequence values
+    {
+      if(seqData[j] == (i|0x8000))
+      {
+        seqVals[n] = (j&0x0001);
+        ++n;
+      }
+    }
+
+    // c_k = sinc(k/N)/N * e^{-j*pi*k/N} * \summat_{n=0}^{N-1} L_n * e^{-j*2*pi*kn/N}
+    //where L_N is the LFSR output of 1 or 0
+    for(k = 0; k < N; ++k) //computer series coefficients
+    {
+
+      if(k == 0)
+        temp = 1/(float)N;
+      else
+        temp = sin(M_PI*k/N)/(M_PI*k);
+
+      coeff.r = cos(M_PI*k/N)*temp;
+      coeff.i = -sin(M_PI*k/N)*temp;
+
+      accum.r = 0;
+      accum.i = 0;
+
+      for(n = 0; n < N; ++n)         //summmation
+      {
+        if(seqVals[n] != 0)
+        {
+          temp = -2*M_PI*k*n/N;
+          accum = cAdd(accum, iExp(temp));
+        }
+      }
+      
+      accum = cMult(accum, coeff);  //result
+
+      specTable[i][k+1] = sqrt(accum.r*accum.r+accum.i*accum.i);
+
+
+    }
+
+  }
+
+  return specTable;
+
+}
 
 
 
@@ -14,12 +149,6 @@
 //Computes LFSR sequences
 //MSB indicates non-transient component, lower 15 bits give sequence id starting at 1
 //Note that this does not generate meaningful information for a taps configuration of 0
-
-//Another note: at present this is not guarunteed to handle transients correctly. For example consider the sequence:
-//1230456[789789...]
-//The first run will mark 0456 as a transient belonging to sequence 1 and 789 as the repeating part of sequence 1,
-//then, the second run will start at 1 and mark 123 as the transient part of sequence 2, then mark 0456 as repeating parts of sequence 1
-//This does not appear to occur for 12-bit LFSRs
 
 unsigned short* getSequencesAtTaps(unsigned short taps, unsigned short mask, unsigned short tapNum)
 {
@@ -43,7 +172,10 @@ unsigned short* getSequencesAtTaps(unsigned short taps, unsigned short mask, uns
 
   part = 1;
 
-  start = 0;
+  start = 0;struct Complex
+{
+  float r,i;
+};
 
   while(start <= mask)
   {

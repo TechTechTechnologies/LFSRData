@@ -58,7 +58,7 @@ float** getSeriesAtTaps(unsigned short* seqData, unsigned short tapNum, unsigned
   struct Complex coeff;
   float temp;
 
-  float** specTable;    //specTable[sequenceID][n] = {N, c_0, c_1, ..., c_{N-1}}
+  float** specTable;    //specTable[sequenceID][n] = {sequence length, c_0, c_1, ..., c_{range-1}}
                         // specTable[0][0] = number of sequences
 
   float* seqVals;       //For holding the LFSR feedback sequence values

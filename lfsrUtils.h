@@ -20,7 +20,7 @@ struct Complex cMult(struct Complex a, struct Complex b)
 {
   struct Complex result;
   result.r = a.r*b.r - a.i*b.i;
-  result.r = a.r*b.i + a.i*b.r;
+  result.i = a.r*b.i + a.i*b.r;
   return result;
 }
 
@@ -110,10 +110,14 @@ float** getSeriesAtTaps(unsigned short* seqData, unsigned short tapNum)
     for(k = 0; k < N; ++k) //computer series coefficients
     {
 
-      if(k == 0)
+      if(k == 0)           //sinc function stuff
+      {
         temp = 1/(float)N;
+      }
       else
+      {
         temp = sin(M_PI*k/N)/(M_PI*k);
+      }
 
       coeff.r = cos(M_PI*k/N)*temp;
       coeff.i = -sin(M_PI*k/N)*temp;
@@ -130,7 +134,13 @@ float** getSeriesAtTaps(unsigned short* seqData, unsigned short tapNum)
         }
       }
       
+if(k == 0) printf("accum: %f+i%f\n", accum.r, accum.i);
+if(k == 0) printf("coeff: %f+i%f\n", coeff.r, coeff.i);
+
       accum = cMult(accum, coeff);  //result
+
+if(k == 0) printf("accum: %f+i%f\n", accum.r, accum.i);
+
 
       specTable[i][k+1] = sqrt(accum.r*accum.r+accum.i*accum.i);
 

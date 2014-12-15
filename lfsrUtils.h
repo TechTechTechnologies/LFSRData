@@ -147,13 +147,15 @@ float** getSeriesAtTaps(unsigned short* seqData, unsigned short tapNum, unsigned
 }
 
 
-
 //getSequenceAtTaps, getAllSequences:
 //Computes LFSR sequences
 //MSB indicates non-transient component, lower 15 bits give sequence id starting at 1
 //Note that this does not generate meaningful information for a taps configuration of 0
 
-unsigned short* getSequencesAtTaps(unsigned short taps, unsigned short mask, unsigned short tapNum)
+#define getSequencesAtTaps(a, b, c) gSAT(a, b, c, 0)
+#define printSequencesAtTaps(a, b, c) gSAT(a, b, c, 1)
+
+unsigned short* gSAT(unsigned short taps, unsigned short mask, unsigned short tapNum, unsigned char print)
 {
 
   //given starting value, taps config, and masking value: run LFSR and record distinct sequences in an array
@@ -175,10 +177,7 @@ unsigned short* getSequencesAtTaps(unsigned short taps, unsigned short mask, uns
 
   part = 1;
 
-  start = 0;struct Complex
-{
-  float r,i;
-};
+  start = 0;
 
   while(start <= mask)
   {
@@ -186,6 +185,12 @@ unsigned short* getSequencesAtTaps(unsigned short taps, unsigned short mask, uns
     lfsr = start;
     done = 0;
     revise = 0;
+
+    if(print != 0)
+    {
+      printf("%i\t", part);
+    }
+
     do             //Record the transient and repeating sequence for the current value of start
     {
 
@@ -200,6 +205,11 @@ unsigned short* getSequencesAtTaps(unsigned short taps, unsigned short mask, uns
           printf("Boner\n");
           revise = (data[lfsr]&0x7FFF);
           break;
+        }
+
+        if(print != 0)
+        {
+          printf("%4.4x\t", lfsr);
         }
 
         data[lfsr] |= 0x8000;
@@ -226,6 +236,12 @@ unsigned short* getSequencesAtTaps(unsigned short taps, unsigned short mask, uns
 
     } while(!done);
 
+    if(print != 0)
+    {
+      printf("\n");
+    }
+
+
     if(revise != 0)
     {
       for( i = 0; i < mask; ++i)
@@ -242,7 +258,15 @@ unsigned short* getSequencesAtTaps(unsigned short taps, unsigned short mask, uns
     while(start <= mask && data[start] != 0) ++start;
   }
 
-  return data;
+  if(print == 0)
+  {
+    return data;
+  }
+  else
+  {
+    free(data);
+    return 0;
+  }
 
 }
 
@@ -277,7 +301,6 @@ unsigned short** getAllSequences(unsigned short tapNum)
     mask |=i; // Ensure that length masks i, with assumptions that i always increases
 
     seqTable[i] = getSequencesAtTaps(i, mask, tapNum);
-
   }
   printf("\n");
 

@@ -22,6 +22,8 @@ int main()
 
   unsigned short **seqTable;  //seqTable[taps][val] = sequence id containing val
 
+  printSequencesAtTaps(02044, 03777, tapNum);
+
   seqTable = getAllSequences(tapNum);
 
   //print sample for sanity check
@@ -35,8 +37,9 @@ int main()
     printf("\n");
   }
 
-  //Computer all series
 
+  //Computer all series
+/*
   float ***seriesTables;
 
   seriesTables = calloc(tapNum, sizeof(float**));
@@ -47,12 +50,12 @@ int main()
     seriesTables[i] = getSeriesAtTaps(seqTable[i], tapNum, range);
   }
   printf("\n");
+*/
 
-/*
   float** testTable;
 
 //  testTable = getSeriesAtTaps(seqTable[0x0021], tapNum, range);
-  testTable = getSeriesAtTaps(seqTable[0x0018], tapNum, range);
+  testTable = getSeriesAtTaps(seqTable[02044], tapNum, range);
 
   outFile = fopen("testTable.txt", "wb");
 
@@ -74,7 +77,6 @@ int main()
   }
 
   fclose(outFile);
-*/
 
 
   return 0;

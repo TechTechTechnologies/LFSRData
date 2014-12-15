@@ -42,8 +42,9 @@ struct Complex iExp(float i)
 
 //getSeriesAtTaps
 //Computes fourier series amplitude of each sequences
+//range = number of series coeffs to computer
 
-float** getSeriesAtTaps(unsigned short* seqData, unsigned short tapNum)
+float** getSeriesAtTaps(unsigned short* seqData, unsigned short tapNum, unsigned int range)
 {
 
   int i,j;
@@ -89,7 +90,7 @@ float** getSeriesAtTaps(unsigned short* seqData, unsigned short tapNum)
       }
     }
 
-    specTable[i] = calloc(lenCounter+1, sizeof(float));
+    specTable[i] = calloc(range+1, sizeof(float));
     specTable[i][0] = lenCounter;
 
     seqVals = calloc(lenCounter, sizeof(float));
@@ -107,7 +108,7 @@ float** getSeriesAtTaps(unsigned short* seqData, unsigned short tapNum)
 
     // c_k = sinc(k/N)/N * e^{-j*pi*k/N} * \summat_{n=0}^{N-1} L_n * e^{-j*2*pi*kn/N}
     //where L_N is the LFSR output of 1 or 0
-    for(k = 0; k < N; ++k) //computer series coefficients
+    for(k = 0; k < range; ++k) //computer series coefficients
     {
 
       if(k == 0)           //sinc function stuff
@@ -133,17 +134,9 @@ float** getSeriesAtTaps(unsigned short* seqData, unsigned short tapNum)
           accum = cAdd(accum, iExp(temp));
         }
       }
-      
-if(k == 0) printf("accum: %f+i%f\n", accum.r, accum.i);
-if(k == 0) printf("coeff: %f+i%f\n", coeff.r, coeff.i);
-
       accum = cMult(accum, coeff);  //result
 
-if(k == 0) printf("accum: %f+i%f\n", accum.r, accum.i);
-
-
       specTable[i][k+1] = sqrt(accum.r*accum.r+accum.i*accum.i);
-
 
     }
 

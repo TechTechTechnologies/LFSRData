@@ -10,7 +10,7 @@
 //#define tapNum 32768
 //#define tapNum 16384
 #define tapNum 4096
-
+#define range 63
 
 int main()
 {
@@ -36,7 +36,7 @@ int main()
   }
 
   //Computer all series
-/*
+
   float ***seriesTables;
 
   seriesTables = calloc(tapNum, sizeof(float**));
@@ -44,15 +44,15 @@ int main()
   for(i = 0; i < tapNum; ++i)
   {
     printf("\r%3.1f%%\t", 100*((float)i)/tapNum);
-    seriesTables[i] = getSeriesAtTaps(seqTable[i], tapNum);
+    seriesTables[i] = getSeriesAtTaps(seqTable[i], tapNum, range);
   }
   printf("\n");
-*/
 
+/*
   float** testTable;
 
-//  testTable = getSeriesAtTaps(seqTable[0x0021], tapNum);
-  testTable = getSeriesAtTaps(seqTable[0x0018], tapNum);
+//  testTable = getSeriesAtTaps(seqTable[0x0021], tapNum, range);
+  testTable = getSeriesAtTaps(seqTable[0x0018], tapNum, range);
 
   outFile = fopen("testTable.txt", "wb");
 
@@ -63,7 +63,7 @@ int main()
     k = sprintf(outString, "%2.0f\t", testTable[i][0]);
     fwrite(outString, k, 1, outFile);
 
-    for(j = 1; j <= testTable[i][0]; ++j)
+    for(j = 1; j <= range; ++j)
     {
       k = sprintf(outString, "%f\t", testTable[i][j]);
       fwrite(outString, k, 1, outFile);
@@ -74,7 +74,7 @@ int main()
   }
 
   fclose(outFile);
-
+*/
 
 
   return 0;
